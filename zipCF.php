@@ -23,7 +23,12 @@ function getDirItems($dir, $recursive_display = false, &$results = array()){
     $files = scandir($dir);
     foreach($files as $key => $value){
         $path = realpath($dir.DIRECTORY_SEPARATOR.$value);
-        list($unused_path, $used_path) = explode(basename(__DIR__).'/', $path);
+        if ($path === false) {
+            // Skip entries that can't be resolved (permissions, broken symlinks, etc.)
+            continue;
+        }
+        $parts = explode(basename(__DIR__).'/', $path, 2);
+        $used_path = isset($parts[1]) ? $parts[1] : $parts[0];
         $file_name = $dir.DIRECTORY_SEPARATOR.$value;
         if(!is_dir($path)) {
             $results[] = $used_path;
